@@ -1,7 +1,7 @@
 # Voici le lien de l'app
 
-https://tp_1-1-r2069039.deta.app/
+https://tp1digitaltraces-1-z7114477.deta.app/
 
 # Description de l'app
 
-L'app print "Hello from Space! 🚀".
+L'app permet d'accéder un une page internet qui affiche "Hello World".
