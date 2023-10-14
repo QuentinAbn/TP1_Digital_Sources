@@ -1,5 +1,7 @@
 from flask import Flask, request
 import logging
+import requests
+import streamlit as st
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -21,9 +23,7 @@ def hello_world():
 
 @app.route("/logger")
 def logger():
-    # Log on the Python server
     app.logger.info("This is a python log")    
-    # Log on the browser using JavaScript
     log = """<script>console.log("This is a browserlog");</script>"""
     
     return log
@@ -41,6 +41,22 @@ def textbox():
         <input type="submit" value="Ok">
     </form>
     """
+@app.route("/google_request")
+def google_request():
+    req = requests.get("https://www.google.com/")
+    return f"The Google request status code is: {req.status_code}"
+
+@app.route("/display_cookies")
+def display_cookies():
+    req = requests.get("https://www.google.com/")
+    st.markdown(req.cookies._cookies)
+    return "Cookies displayed"
+
+@app.route("/ganalytics_url")
+def ganalytics_url():
+    req2 = requests.get("https://analytics.google.com/analytics/web/#/p407502992/reports/intelligenthome")
+    return f"The Ganalytics request status code is: {req2.status_code}"
+
 
 if __name__ == "__main__":
     app.run(debug=True)
