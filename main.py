@@ -1,7 +1,7 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 import logging
 import requests
-import streamlit as st
+
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -41,21 +41,44 @@ def textbox():
         <input type="submit" value="Ok">
     </form>
     """
-@app.route("/google_request")
+@app.route('/google_request', methods=['GET'])
 def google_request():
-    req = requests.get("https://www.google.com/")
-    return f"The Google request status code is: {req.status_code}"
+    #create buttons to choose the request
+    return """
+    <form method="GET" action="/Ganalytics_request">
+        <input type="submit" value="Google Analytics dashboard of the App">
+    </form>
+    <form method="GET" action="/request_cookies">
+        <input type="submit" value="Google Analytics request cookie">
+    </form>
+    """
 
-@app.route("/display_cookies")
-def display_cookies():
-    req = requests.get("https://www.google.com/")
-    st.markdown(req.cookies._cookies)
-    return "Cookies displayed"
+@app.route('/Ganalytics_request', methods=['GET'])
+def Ganalytics_request():
+    google_analytics_url = "https://analytics.google.com/analytics/web/#/p407502992/reports/intelligenthome"
+    
+    try:
+        response = requests.get(google_analytics_url)
+        response.raise_for_status()
 
-@app.route("/ganalytics_url")
-def ganalytics_url():
-    req2 = requests.get("https://analytics.google.com/analytics/web/#/p407502992/reports/intelligenthome")
-    return f"The Ganalytics request status code is: {req2.status_code}"
+        return response.text
+    except requests.exceptions.RequestException as e:
+        return f"Error making Ganalytics request: {str(e)}"
+
+@app.route('/request_cookies', methods=['GET'])
+def request_cookies():
+    google_analytics_url = "https://analytics.google.com/analytics/web/#/p407502992/reports/intelligenthome"
+    
+    try:
+        response = requests.get(google_analytics_url)
+        response.raise_for_status()
+
+        # get the cookies
+        cookies = response.cookies
+        # return the cookies
+        return render_template('cookies.html', cookies=cookies)
+    except requests.exceptions.RequestException as e:
+        return f"Error making cookies request: {str(e)}"
 
 
 if __name__ == "__main__":
