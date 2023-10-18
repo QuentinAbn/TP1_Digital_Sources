@@ -1,6 +1,8 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 import logging
 import requests
+import json
+from pytrends.request import TrendReq
 
 
 app = Flask(__name__)
@@ -20,6 +22,27 @@ def hello_world():
     </script>
     """
     return prefix_google + "Hello World"
+
+pytrends = TrendReq(hl='en-US', tz=360)
+
+@app.route('/trends')
+def chart_data():
+    pytrends = TrendReq(hl='en-US', tz=360)
+    keywords = ["Kaido", "Nami"]
+    pytrends.build_payload(keywords, timeframe='today 12-m', geo='US')
+    interest_over_time_df = pytrends.interest_over_time()
+
+    data = {
+        'dates': interest_over_time_df.index.strftime('%Y-%m-%d').tolist(),
+        'Kaido': interest_over_time_df['Kaido'].tolist(),
+        'Nami': interest_over_time_df['Nami'].tolist()
+    }
+
+    return jsonify(data)
+
+@app.route('/chart_data_render')
+def index():
+    return render_template('chart_trend_data.html')
 
 @app.route("/logger")
 def logger():
